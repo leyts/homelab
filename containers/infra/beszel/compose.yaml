@@ -1,0 +1,19 @@
+services:
+  beszel-hub:
+    image: henrygd/beszel:0.17.0
+    container_name: beszel-hub
+    restart: unless-stopped
+    networks:
+      - edge
+    volumes:
+      - ./beszel_data:/beszel_data
+      - ./beszel_socket:/beszel_socket
+    environment:
+      APP_URL: https://beszel.laddisonroach.com
+      DISABLE_PASSWORD_AUTH: "true"
+      USER_CREATION: "true"
+
+networks:
+  edge:
+    name: edge
+    external: true

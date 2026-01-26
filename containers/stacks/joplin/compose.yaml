@@ -1,0 +1,22 @@
+services:
+  app:
+    image: joplin/server:3.5.2@sha256:5d9e7f9d31b436cb1b99d1a6a65d8c5bf760829094617e8ad1e956fd925de888
+    restart: unless-stopped
+    networks:
+      internal:
+      edge:
+        aliases:
+          - joplin-server
+    expose:
+      - "22300"
+    environment:
+      APP_BASE_URL: ${JOPLIN_BASE_URL}
+      DB_CLIENT: pg
+      POSTGRES_HOST: db
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+networks:
+  edge:
+    external: true

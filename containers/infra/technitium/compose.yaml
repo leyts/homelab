@@ -1,0 +1,38 @@
+services:
+  dns-server:
+    image: technitium/dns-server:14.3.0
+    restart: unless-stopped
+    networks:
+      - edge
+    ports:
+      - "5380:5380/tcp" # HTTP UI (remove later)
+      - "54443:53443/tcp"
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - config:/etc/dns
+    environment:
+      DNS_SERVER_DOMAIN: dns.laddisonroach.com
+      DNS_SERVER_ADMIN_PASSWORD_FILE: /run/secrets/admin_passwd
+      DNS_SERVER_WEB_SERVICE_ENABLE_HTTPS: "true"
+      DNS_SERVER_WEB_SERVICE_USE_SELF_SIGNED_CERT: "true"
+      DNS_SERVER_RECURSION: AllowOnlyForPrivateNetworks
+      DNS_SERVER_FORWARDERS: "1.1.1.1,8.8.8.8"
+      DNS_SERVER_FORWARDER_PROTOCOL: Udp
+      DNS_SERVER_LOG_USING_LOCAL_TIME: "true"
+    secrets:
+      - admin_passwd
+    sysctls:
+      net.ipv4.ip_local_port_range: "1024 65535"
+
+networks:
+  edge:
+    name: edge
+    external: true
+
+volumes:
+  config:
+
+secrets:
+  admin_passwd:
+    file: ./admin_passwd.secret

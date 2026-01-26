@@ -1,0 +1,15 @@
+{
+    "dateFormat": "YYYY-MM-DD",
+    "sync.9.password": "admin",
+    "sync.9.path": "http://127.0.0.1:22300/",
+    "sync.9.username": "admin@localhost",
+    "sync.interval": 0,
+    "sync.target": 9
+}
+
+
+config sync.target 9
+config sync.9.path http://127.0.0.1:22300/
+config sync.9.username admin@localhost
+config sync.9.password admin
+config sync.interval 0

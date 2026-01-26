@@ -1,0 +1,6 @@
+ingress:
+  - hostname: auth.laddisonroach.com
+    service: http://caddy:80
+  - hostname: beszel.laddisonroach.com
+    service: http://caddy:80
+  - service: http_status:404

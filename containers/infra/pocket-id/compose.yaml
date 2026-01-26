@@ -1,0 +1,64 @@
+services:
+  pocket-id:
+    image: ghcr.io/pocket-id/pocket-id:v2.1.0
+    restart: unless-stopped
+    networks:
+      - edge
+    volumes:
+      - ./data:/app/data
+    environment:
+      APP_URL: https://auth.laddisonroach.com
+      TRUST_PROXY: "true"
+      ENCRYPTION_KEY: /run/secrets/encryption_key
+      UI_CONFIG_DISABLED: "true"
+      MAXMIND_LICENSE_KEY_FILE: /run/secrets/license_key
+      ANALYTICS_DISABLED: "true"
+      EMAILS_VERIFIED: "true"
+      ALLOW_USER_SIGNUPS: withToken
+      EMAIL_ONE_TIME_ACCESS_AS_ADMIN_ENABLED: "true"
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_FROM: no-reply@laddisonroach.com
+      SMTP_USER: contact@laddisonroach.com
+      SMTP_PASSWORD_FILE: /run/secrets/smtp_passwd
+      SMTP_TLS: starttls
+    healthcheck:
+      test: ["CMD", "/app/pocket-id", "healthcheck"]
+      interval: 1m30s
+      timeout: 5s
+      retries: 2
+      start_period: 10s
+    secrets:
+      - encryption_key
+      - license_key
+      - smtp_passwd
+
+  # beszel-agent:
+  #   image: henrygd/beszel:0.17.0
+  #   restart: unless-stopped
+  #   network_mode: host
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - ./beszel_agent_data:/var/lib/beszel-agent
+  #   environment:
+  #     LISTEN: 45876
+  #     KEY: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP6NRxMf8ufMEVU6T7g3Tnk1SFEVBNoDoxLYwbQkOpVv"
+  #     TOKEN_FILE: /run/secrets/beszel_token
+  #     HUB_URL: https://beszel.laddisonroach.com
+  #   secrets:
+  #     - beszel_token
+
+networks:
+  edge:
+    name: edge
+    external: true
+
+secrets:
+  encryption_key:
+    file: ./encryption_key.secret
+  license_key:
+    file: ./license_key.secret
+  smtp_passwd:
+    file: ./smtp_passwd.secret
+  # beszel_token:
+  #   file: ./beszel_token.secret

@@ -1,0 +1,10 @@
+FROM node:24-alpine@sha256:c921b97d4b74f51744057454b306b418cf693865e73b8100559189605f6955b8
+
+ARG JOPLIN_VERSION
+ARG NODE_ENV=production
+
+RUN npm install --global joplin@$JOPLIN_VERSION
+
+USER node
+
+ENTRYPOINT ["joplin"]
