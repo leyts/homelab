@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
     shm_size: 128mb
     volumes:
-      - atuin_db:/var/lib/postgresql/data
+      - atuin-db:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${ATUIN_DB_NAME}
       POSTGRES_USER: ${ATUIN_DB_USERNAME}
@@ -31,4 +31,4 @@ services:
       timeout: 5s
 
 volumes:
-  atuin_db:
+  atuin-db:

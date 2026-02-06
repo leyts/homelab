@@ -14,8 +14,8 @@ services:
     #   - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - caddy-data:/data
+      - caddy-config:/config
 
   cloudflared:
     image: cloudflare/cloudflared:2025.11.1
@@ -40,8 +40,8 @@ networks:
     name: edge
 
 volumes:
-  caddy_data:
-  caddy_config:
+  caddy-data:
+  caddy-config:
 
 secrets:
   cloudflare_token:

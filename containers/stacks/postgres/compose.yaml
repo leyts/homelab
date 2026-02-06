@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     shm_size: 128mb
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg-data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -17,7 +17,7 @@ services:
       timeout: 5s
 
 volumes:
-  pg_data:
+  pg-data:
 
 secrets:
   postgres_passwd:
