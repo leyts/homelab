@@ -1,0 +1,34 @@
+services:
+  atuin:
+    image: ghcr.io/atuinsh/atuin:18.11.0
+    restart: always
+    depends_on:
+      - db
+    command: server start
+    ports:
+      - 8888:8888
+    volumes:
+      - ./config:/config
+    environment:
+      ATUIN_HOST: "0.0.0.0"
+      ATUIN_OPEN_REGISTRATION: "true"
+      ATUIN_DB_URI: postgres://${ATUIN_DB_USERNAME}:${ATUIN_DB_PASSWORD}@db/${ATUIN_DB_NAME}
+      RUST_LOG: info,atuin_server=debug
+
+  db:
+    image: postgres:14
+    restart: unless-stopped
+    shm_size: 128mb
+    volumes:
+      - atuin_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${ATUIN_DB_NAME}
+      POSTGRES_USER: ${ATUIN_DB_USERNAME}
+      POSTGRES_PASSWORD: ${ATUIN_DB_PASSWORD}
+    healthcheck:
+      test: "pg_isready -d ${ATUIN_DB_NAME} -U ${ATUIN_DB_USERNAME}"
+      interval: 10s
+      timeout: 5s
+
+volumes:
+  atuin_db:
