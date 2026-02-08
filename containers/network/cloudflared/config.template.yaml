@@ -1,0 +1,7 @@
+tunnel: ${TUNNEL_UUID}
+credentials-file: ${CRED_FILE_PATH}
+
+ingress:
+  - hostname: "*.laddisonroach.com"
+    service: http://192.168.0.102:80
+  - service: http_status:404
