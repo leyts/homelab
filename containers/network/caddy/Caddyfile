@@ -1,0 +1,11 @@
+http://auth.laddisonroach.com {
+	reverse_proxy 192.168.0.103:1411
+}
+
+http://atuin.laddisonroach.com {
+	reverse_proxy 192.168.0.101:8888
+}
+
+http://arcane.laddisonroach.com {
+	reverse_proxy 192.168.0.101:3552
+}
