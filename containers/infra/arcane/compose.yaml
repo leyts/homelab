@@ -7,13 +7,22 @@ services:
       - 3552:3552
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - arcane-data:/app/data
+      - data:/app/data
     environment:
+      APP_URL: https://arcane.laddisonroach.com
       ANALYTICS_DISABLED: "true"
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       JWT_SECRET: ${JWT_SECRET}
       UI_CONFIGURATION_DISABLED: "true"
+      AUTH_LOCAL_ENABLED: "false"
+      OIDC_ENABLED: "true"
+      OIDC_CLIENT_ID: d68ce65d-0fa6-45ed-9498-7a4891998957
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      OIDC_ISSUER_URL: https://auth.laddisonroach.com
+      OIDC_SCOPES: openid email profile groups
+      OIDC_ADMIN_CLAIM: groups
+      OIDC_ADMIN_VALUE: admin
 
 volumes:
-  arcane-data:
+  data:
     driver: local
