@@ -1,0 +1,84 @@
+---
+- name: Install Caddy repository dependencies
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - curl
+      - debian-archive-keyring
+      - debian-keyring
+      - gnupg
+    state: present
+    cache_valid_time: 3600
+
+- name: Install Caddy repository signing key
+  ansible.builtin.get_url:
+    url: "{{ caddy_gpg_key_url }}"
+    dest: "{{ caddy_gpg_key_armored_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  register: caddy_signing_key
+
+- name: Check Caddy repository keyring
+  ansible.builtin.stat:
+    path: "{{ caddy_gpg_key_path }}"
+  register: caddy_keyring
+
+- name: Dearmor Caddy repository signing key
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --dearmor
+      - --yes
+      - --output
+      - "{{ caddy_gpg_key_path }}"
+      - "{{ caddy_gpg_key_armored_path }}"
+  changed_when: true
+  when: caddy_signing_key.changed or not caddy_keyring.stat.exists
+
+- name: Ensure Caddy repository keyring is readable
+  ansible.builtin.file:
+    path: "{{ caddy_gpg_key_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure Caddy apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ caddy_gpg_key_path }}] {{ caddy_apt_repo_url }} {{ caddy_apt_suite }} {{ caddy_apt_components }}"
+    filename: caddy-stable
+    state: present
+    update_cache: true
+
+- name: Install Caddy
+  ansible.builtin.apt:
+    name: "{{ caddy_package_name }}"
+    state: present
+
+- name: Deploy Caddyfile
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+    owner: root
+    group: root
+    mode: "0644"
+    validate: caddy validate --config %s
+  notify: Reload caddy
+
+- name: Enable and start Caddy
+  ansible.builtin.systemd_service:
+    name: caddy
+    enabled: true
+    state: started
+
+- name: Apply pending Caddy reloads before health check
+  ansible.builtin.meta: flush_handlers
+
+- name: Check Caddy test response
+  ansible.builtin.uri:
+    url: "{{ caddy_healthcheck_url }}"
+    status_code: 200
+  register: caddy_healthcheck
+  retries: 5
+  delay: 2
+  until: caddy_healthcheck.status == 200

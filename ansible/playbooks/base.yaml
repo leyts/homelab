@@ -1,0 +1,14 @@
+---
+- name: Configure baseline LXC state
+  hosts: all
+  gather_facts: false
+
+  pre_tasks:
+    - name: Bootstrap Python for Ansible if missing
+      ansible.builtin.import_tasks: ../tasks/bootstrap-python.yaml
+
+    - name: Gather facts
+      ansible.builtin.setup:
+
+  roles:
+    - base

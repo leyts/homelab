@@ -1,0 +1,5 @@
+---
+- name: Bootstrap a host without Python installed
+  ansible.builtin.raw: command -v python3 >/dev/null 2>&1 || (apt-get update && apt-get install -y python3)
+  register: python_bootstrap
+  changed_when: "'Setting up python3' in python_bootstrap.stdout"

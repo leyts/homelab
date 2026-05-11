@@ -1,0 +1,113 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    cache_valid_time: 3600
+
+- name: Upgrade installed packages
+  ansible.builtin.apt:
+    upgrade: full
+    autoremove: true
+
+- name: Install baseline packages
+  ansible.builtin.apt:
+    name: "{{ base_packages }}"
+    state: present
+
+- name: Check configured timezone exists
+  ansible.builtin.stat:
+    path: "/usr/share/zoneinfo/{{ base_timezone }}"
+  register: base_timezone_file
+  failed_when: not base_timezone_file.stat.exists
+
+- name: Link local timezone
+  ansible.builtin.file:
+    src: "/usr/share/zoneinfo/{{ base_timezone }}"
+    dest: /etc/localtime
+    state: link
+    force: true
+    owner: root
+    group: root
+
+- name: Set timezone name
+  ansible.builtin.copy:
+    dest: /etc/timezone
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      {{ base_timezone }}
+
+- name: Enable configured locale
+  ansible.builtin.lineinfile:
+    path: /etc/locale.gen
+    regexp: "^#?{{ base_locale | regex_escape }} UTF-8$"
+    line: "{{ base_locale }} UTF-8"
+    mode: "0644"
+  notify: Generate locales
+
+- name: Set default locale
+  ansible.builtin.copy:
+    dest: /etc/default/locale
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      LANG={{ base_locale }}
+
+- name: Ensure configured admin users exist
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups | default(omit) }}"
+    append: true
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    create_home: true
+    state: present
+  loop: "{{ base_admin_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Ensure configured admin SSH directories exist
+  ansible.builtin.file:
+    path: "{{ item.home | default('/home/' ~ item.name) }}/.ssh"
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.primary_group | default(item.name) }}"
+    mode: "0700"
+  loop: "{{ base_admin_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.ssh_public_keys is defined
+
+- name: Install configured admin SSH keys
+  ansible.builtin.lineinfile:
+    path: "{{ item.0.home | default('/home/' ~ item.0.name) }}/.ssh/authorized_keys"
+    line: "{{ item.1 }}"
+    create: true
+    owner: "{{ item.0.name }}"
+    group: "{{ item.0.primary_group | default(item.0.name) }}"
+    mode: "0600"
+  loop: "{{ query('ansible.builtin.subelements', base_admin_users, 'ssh_public_keys', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.name }}"
+
+- name: Ensure sshd drop-in directory exists
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install SSH hardening drop-in
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/99-homelab.conf
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/sbin/sshd -t -f %s
+    content: |
+      PermitRootLogin {{ base_ssh_permit_root_login }}
+      PasswordAuthentication {{ 'yes' if base_ssh_password_authentication else 'no' }}
+      KbdInteractiveAuthentication no
+      X11Forwarding {{ 'yes' if base_ssh_x11_forwarding else 'no' }}
+  notify: Reload ssh
