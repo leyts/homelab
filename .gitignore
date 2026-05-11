@@ -1,7 +1,6 @@
+# OpenTofu
 .terraform/
 *.tfstate
 *.tfstate.*
 *.tfvars
 !*.example.tfvars
-
-*.retry
