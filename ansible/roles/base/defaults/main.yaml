@@ -1,15 +1,7 @@
 ---
-base_timezone: Etc/UTC
-base_locale: en_GB.UTF-8
-base_packages:
-  - ca-certificates
-  - curl
-  - gnupg
-  - locales
-  - openssh-server
-  - tzdata
-
-base_admin_users: []
-base_ssh_password_authentication: false
-base_ssh_permit_root_login: prohibit-password
-base_ssh_x11_forwarding: false
+base_ssh_namespace: homelab
+base_ssh_config:
+  PermitRootLogin: prohibit-password
+  PasswordAuthentication: false
+  KbdInteractiveAuthentication: false
+  X11Forwarding: false

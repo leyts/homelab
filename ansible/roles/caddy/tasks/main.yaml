@@ -36,13 +36,6 @@
   changed_when: true
   when: caddy_signing_key.changed or not caddy_keyring.stat.exists
 
-- name: Ensure Caddy repository keyring is readable
-  ansible.builtin.file:
-    path: "{{ caddy_gpg_key_path }}"
-    owner: root
-    group: root
-    mode: "0644"
-
 - name: Configure Caddy apt repository
   ansible.builtin.apt_repository:
     repo: "deb [signed-by={{ caddy_gpg_key_path }}] {{ caddy_apt_repo_url }} {{ caddy_apt_suite }} {{ caddy_apt_components }}"
@@ -52,7 +45,7 @@
 
 - name: Install Caddy
   ansible.builtin.apt:
-    name: "{{ caddy_package_name }}"
+    name: caddy
     state: present
 
 - name: Deploy Caddyfile
@@ -62,21 +55,15 @@
     owner: root
     group: root
     mode: "0644"
-    validate: caddy validate --config %s
+    validate: caddy validate --adapter caddyfile --config %s
   notify: Reload caddy
-
-- name: Enable and start Caddy
-  ansible.builtin.systemd_service:
-    name: caddy
-    enabled: true
-    state: started
 
 - name: Apply pending Caddy reloads before health check
   ansible.builtin.meta: flush_handlers
 
 - name: Check Caddy test response
   ansible.builtin.uri:
-    url: "{{ caddy_healthcheck_url }}"
+    url: "http://127.0.0.1/"
     status_code: 200
   register: caddy_healthcheck
   retries: 5

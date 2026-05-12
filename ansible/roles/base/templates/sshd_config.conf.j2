@@ -1,0 +1,3 @@
+{% for key, value in base_ssh_config.items() %}
+{{ key }} {{ value | ternary('yes', 'no') if value is boolean else value }}
+{% endfor %}

@@ -19,7 +19,7 @@ variable "template_datastore_id" {
 variable "lxc_template_url" {
   description = "Proxmox LXC template URL."
   type        = string
-  default     = "https://download.proxmox.com/images/system/debian-13-standard_13.1-2_amd64.tar.zst"
+  default     = "http://download.proxmox.com/images/system/debian-13-standard_13.1-2_amd64.tar.zst"
 }
 
 variable "lxc_ssh_public_key_path" {

@@ -22,7 +22,12 @@ resource "proxmox_virtual_environment_container" "caddy" {
   node_name    = var.proxmox_node_name
   vm_id        = var.caddy_lxc.vm_id
   tags         = ["network"]
+
+  # Newer linux distributions require unprivileged user namespaces
   unprivileged = true
+  features {
+    nesting = true
+  }
 
   initialization {
     hostname = var.caddy_lxc.hostname
