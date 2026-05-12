@@ -1,5 +1,11 @@
 ---
-- name: Bootstrap a host without Python installed
-  ansible.builtin.raw: command -v python3 >/dev/null 2>&1 || (apt-get update && apt-get install -y python3)
-  register: python_bootstrap
-  changed_when: "'Setting up python3' in python_bootstrap.stdout"
+- name: Check if Python is installed
+  ansible.builtin.raw: command -v python3
+  register: python_check
+  changed_when: false
+  failed_when: false
+
+- name: Install Python for Ansible if missing
+  ansible.builtin.raw: apt-get update && apt-get install -y python3
+  changed_when: true
+  when: python_check.rc != 0
