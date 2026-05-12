@@ -5,8 +5,6 @@ variable "caddy_lxc" {
     vm_id          = number
     ipv4_address   = string
     ipv4_gateway   = string
-    cpu_cores      = number
-    memory_mb      = number
     swap_mb        = number
     rootfs_size_gb = number
   })
@@ -15,8 +13,6 @@ variable "caddy_lxc" {
     vm_id          = 201
     ipv4_address   = "192.168.0.201/24"
     ipv4_gateway   = "192.168.0.1"
-    cpu_cores      = 1
-    memory_mb      = 512
     swap_mb        = 512
     rootfs_size_gb = 8
   }
@@ -58,13 +54,8 @@ resource "proxmox_virtual_environment_container" "caddy" {
     size         = var.caddy_lxc.rootfs_size_gb
   }
 
-  cpu {
-    cores = var.caddy_lxc.cpu_cores
-  }
-
   memory {
-    dedicated = var.caddy_lxc.memory_mb
-    swap      = var.caddy_lxc.swap_mb
+    swap = var.caddy_lxc.swap_mb
   }
 
   wait_for_ip {
