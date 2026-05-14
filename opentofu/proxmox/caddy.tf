@@ -33,7 +33,7 @@ resource "proxmox_virtual_environment_container" "caddy" {
 
   disk {
     datastore_id = var.rootfs_datastore_id
-    size         = 8
+    size         = 6
   }
 
   memory {
@@ -42,15 +42,5 @@ resource "proxmox_virtual_environment_container" "caddy" {
 
   wait_for_ip {
     ipv4 = true
-  }
-}
-
-output "caddy_lxc" {
-  description = "Connection details for the Caddy LXC."
-  value = {
-    hostname     = proxmox_virtual_environment_container.caddy.initialization[0].hostname
-    vm_id        = proxmox_virtual_environment_container.caddy.vm_id
-    ipv4_address = "192.168.0.201/24"
-    ssh_user     = "root"
   }
 }
