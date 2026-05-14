@@ -18,23 +18,10 @@
     group: root
     mode: "0644"
   register: caddy_signing_key
+  notify: Dearmor Caddy repository signing key
 
-- name: Check Caddy repository keyring
-  ansible.builtin.stat:
-    path: "{{ caddy_gpg_key_path }}"
-  register: caddy_keyring
-
-- name: Dearmor Caddy repository signing key
-  ansible.builtin.command:
-    argv:
-      - gpg
-      - --dearmor
-      - --yes
-      - --output
-      - "{{ caddy_gpg_key_path }}"
-      - "{{ caddy_gpg_key_armored_path }}"
-  changed_when: true
-  when: caddy_signing_key.changed or not caddy_keyring.stat.exists
+- name: Apply pending Caddy repository key updates
+  ansible.builtin.meta: flush_handlers
 
 - name: Configure Caddy apt repository
   ansible.builtin.apt_repository:
