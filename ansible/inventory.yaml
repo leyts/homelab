@@ -1,9 +1,10 @@
 all:
   hosts:
-    lxc-proxy-01:
-      ansible_host: 192.168.0.201
+    caddy-01:
+      ansible_host: 192.168.0.102
       ansible_user: root
+
   children:
     caddy:
       hosts:
-        lxc-proxy-01:
+        caddy-01:

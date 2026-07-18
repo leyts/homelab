@@ -1,17 +1,16 @@
 resource "proxmox_virtual_environment_container" "caddy" {
   node_name = var.proxmox_node_name
-  vm_id     = 201
+  vm_id     = 102
   tags      = ["network"]
 
-  # Newer linux distributions require unprivileged user namespaces
   unprivileged = true
 
   initialization {
-    hostname = "lxc-proxy-01"
+    hostname = "caddy-01"
 
     ip_config {
       ipv4 {
-        address = "192.168.0.201/24"
+        address = "192.168.0.102/24"
         gateway = "192.168.0.1"
       }
     }
